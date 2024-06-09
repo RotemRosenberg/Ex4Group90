@@ -33,7 +33,7 @@ public class DBservices
 
 
     // insert course
-    public int InsertCourse(Course course)
+    public bool InsertCourse(Course course)
     {
 
         SqlConnection con;
@@ -48,7 +48,7 @@ public class DBservices
             // write to log
             throw (ex);
         }
-
+        //create Dictionary for sp
         Dictionary<string, object> paramDic = new Dictionary<string, object>();
         paramDic.Add("@Title", course.Title);
         paramDic.Add("@Url", course.Url);
@@ -59,8 +59,12 @@ public class DBservices
 
         try
         {
-            int numEffected = Convert.ToInt32(cmd.ExecuteScalar()); // returning the id
-            return numEffected;
+            int numEffected = cmd.ExecuteNonQuery();
+            if (numEffected > 0)
+            {
+                return true;
+            }
+            return false;
         }
         catch (Exception ex)
         {
@@ -79,7 +83,7 @@ public class DBservices
 
     }
     // delete course
-    public int DeleteCourse(int id)
+    public bool DeleteCourse(int id)
     {
 
         SqlConnection con;
@@ -98,17 +102,64 @@ public class DBservices
         Dictionary<string, object> paramDic = new Dictionary<string, object>();
         paramDic.Add("@CourseId", id);
 
-
-
-
-
         cmd = CreateCommandWithStoredProcedure("SP_DeleteCourse", con, paramDic);             // create the command
 
         try
         {
-            int numEffected = cmd.ExecuteNonQuery(); // execute the command
-                                                     //int numEffected = Convert.ToInt32(cmd.ExecuteScalar()); // returning the id
-            return numEffected;
+            int numEffected = cmd.ExecuteNonQuery();
+            if (numEffected > 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+
+    }
+
+    //update course
+    public bool UpdateCourse(Course course)
+    {
+
+        SqlConnection con;
+        SqlCommand cmd;
+
+        try
+        {
+            con = connect("myProjDB"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        Dictionary<string, object> paramDic = new Dictionary<string, object>();
+        paramDic.Add("@CourseId", course.Id);
+        paramDic.Add("@Title", course.Title);
+        paramDic.Add("@Url", course.Url);
+        paramDic.Add("@Duration", course.Duration);
+        paramDic.Add("@Image", course.ImageReference);
+        cmd = CreateCommandWithStoredProcedure("SP_EditCourse", con, paramDic);             // create the command
+
+        try
+        {
+            int numEffected = cmd.ExecuteNonQuery();
+            if(numEffected == 0) return false;
+            else return true;
         }
         catch (Exception ex)
         {
@@ -358,7 +409,7 @@ public class DBservices
     }
 
     // insert Instructor
-    public int InsertInstructor(Instructor instructor)
+    public bool InsertInstructor(Instructor instructor)
     {
 
         SqlConnection con;
@@ -384,8 +435,9 @@ public class DBservices
 
         try
         {
-            int numEffected = Convert.ToInt32(cmd.ExecuteScalar()); // returning the id
-            return numEffected;
+            int numEffected = cmd.ExecuteNonQuery();
+            if (numEffected == 0) return false;
+            else return true;
         }
         catch (Exception ex)
         {
@@ -406,7 +458,7 @@ public class DBservices
    
     // delete Instructor by id
 
-    public int DeleteInstructor(int id)
+    public bool DeleteInstructor(int id)
     {
 
         SqlConnection con;
@@ -429,9 +481,9 @@ public class DBservices
 
         try
         {
-            int numEffected = cmd.ExecuteNonQuery(); // execute the command
-                                                     //int numEffected = Convert.ToInt32(cmd.ExecuteScalar()); // returning the id
-            return numEffected;
+            int numEffected = cmd.ExecuteNonQuery();
+            if (numEffected == 0) return false;
+            else return true;
         }
         catch (Exception ex)
         {
@@ -566,7 +618,7 @@ public class DBservices
     }
 
     //register user
-    public int RegisterUser(User user)
+    public bool RegisterUser(User user)
     {
 
         SqlConnection con;
@@ -588,8 +640,67 @@ public class DBservices
         cmd = CreateCommandWithStoredProcedure("SP_RegisterUser", con, paramDic);             // create the command
         try
         {
-            int numEffected = Convert.ToInt32(cmd.ExecuteScalar()); // returning the id
-            return numEffected;
+            int numEffected = cmd.ExecuteNonQuery();
+            if (numEffected == 0) return false;
+            else return true;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+
+    }
+    public User LogInUser(string email, string password)
+    {
+
+        SqlConnection con;
+        SqlCommand cmd;
+
+        try
+        {
+            con = connect("myProjDB"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        Dictionary<string, object> paramDic = new Dictionary<string, object>();
+        paramDic.Add("@Email", email);
+        paramDic.Add("@Password", password);
+
+
+        cmd = CreateCommandWithStoredProcedure("SP_LoginUser", con, paramDic);             // create the command
+
+        try
+        {
+            object result = cmd.ExecuteScalar(); // execute the command and get the result
+            int returnValue = Convert.ToInt32(result);
+            SqlDataReader dataReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+            if (dataReader.Read())
+            {
+                User user = new User();
+                user.Id = Convert.ToInt32(dataReader["id"]);
+                user.Name = dataReader["name"].ToString();
+                user.Email = dataReader["email"].ToString();
+                user.Password = dataReader["password"].ToString();
+                user.IsAdmin = Convert.ToBoolean(dataReader["isAdmin"]);
+                user.IsActive = Convert.ToBoolean(dataReader["IsActive"]);
+                return user;
+            }
+            else return null;
         }
         catch (Exception ex)
         {
@@ -608,6 +719,7 @@ public class DBservices
 
     }
 
+
     //---------------------------------------------------------------------------------
     // Create the SqlCommand using a stored procedure
     //---------------------------------------------------------------------------------
@@ -624,6 +736,7 @@ public class DBservices
 
         cmd.CommandType = System.Data.CommandType.StoredProcedure; // the type of the command, can also be text
 
+        //check if Dictionary not null and add to cmd
         if (paramDic != null)
             foreach (KeyValuePair<string, object> param in paramDic)
             {

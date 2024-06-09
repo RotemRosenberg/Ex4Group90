@@ -25,11 +25,21 @@ namespace ServerSideEx4.Controllers
 
         // POST api/<UserController>
         [HttpPost]
-        public void Post([FromBody] User user)
+        public bool Post([FromBody] User user)
         {
-            user.Register();
+           return user.Register();
         }
-
+        // POST api/<UserController>/login
+        [HttpPost("login")]
+        public User Login(string email, [FromBody] string password)
+        {
+           
+           User user = BL.User.Login(email, password);
+           if (user == null) {
+                throw new Exception("User not found");
+            }
+            return user;
+        }
         // PUT api/<UserController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)

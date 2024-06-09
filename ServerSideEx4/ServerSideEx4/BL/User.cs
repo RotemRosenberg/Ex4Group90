@@ -34,10 +34,24 @@
             DBservices dbs = new DBservices();
             return dbs.ReadUsers();
         }
-        public int Register()
+        public bool Register()
         {
             DBservices dbs = new DBservices();
-            return dbs.RegisterUser(this);
+            if (dbs.ReadUsers().Contains(this) == false)
+            {
+                dbs.RegisterUser(this);
+                return true;
+            }
+            return false;
+        }
+        public static User Login(string email, string password)
+        {
+            DBservices dbs = new DBservices();
+            return dbs.LogInUser(email, password);
+        }
+        public override bool Equals(object? obj)
+        {
+            return obj is User user && Email == user.Email;
         }
     }
 }

@@ -26,9 +26,9 @@ namespace ServerSideEx4.Controllers
 
         // POST api/<InstructorController>
         [HttpPost]
-        public void Post([FromBody] Instructor instructor)
+        public bool Post([FromBody] Instructor instructor)
         {
-            instructor.AddInstructor();
+            return instructor.AddInstructor();
         }
 
         // PUT api/<InstructorController>/5
@@ -41,8 +41,7 @@ namespace ServerSideEx4.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            int result = Instructor.Delete(id);
-            if (result == 1)
+            if (Instructor.Delete(id))
                 return Ok(id);
             else return NotFound("There is no Course with this id:" + id);
         }

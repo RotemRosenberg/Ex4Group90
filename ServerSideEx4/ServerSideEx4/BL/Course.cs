@@ -42,12 +42,23 @@
             DBservices dbs = new DBservices();
             return dbs.ReadCourse();
         }
-        public void AddCourse()
+        public bool AddCourse()
         {
             DBservices dbs = new DBservices();
-            dbs.InsertCourse(this);
+            if (dbs.ReadCourse().Contains(this) == false)
+            {
+                dbs.InsertCourse(this);
+                return true;
+
+            }
+             return false;
         }
-        public static int Delete(int id)
+        public bool Update()
+        {
+            DBservices dbs = new DBservices();
+            return dbs.UpdateCourse(this);
+        }
+        public static bool Delete(int id)
         {
             DBservices dbs = new DBservices();
             return dbs.DeleteCourse(id);
@@ -67,6 +78,9 @@
             DBservices dbs = new DBservices();
             return dbs.GetInstructorCourses(id);
         }
-
+        public override bool Equals(object? obj)
+        {
+            return obj is Course course && (Id == course.Id ||Title ==course.Title) ;
+        }
     }
 }

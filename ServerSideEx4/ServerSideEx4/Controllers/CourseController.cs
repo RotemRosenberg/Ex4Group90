@@ -26,23 +26,23 @@ namespace ServerSideEx4.Controllers
 
         // POST api/<CourseController>
         [HttpPost]
-        public void Post([FromBody] Course course)
+        public bool Post([FromBody] Course course)
         {
-            course.AddCourse();
+            return course.AddCourse();
         }
 
         // PUT api/<CourseController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("userUpdate")]
+        public bool Put([FromBody] Course updatedCourse)
         {
+            return updatedCourse.Update();
         }
 
         // DELETE api/<CourseController>/5
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            int result = Course.Delete(id);
-            if (result == 1)
+            if (Course.Delete(id))
                 return Ok(id);
             else return NotFound("There is no Course with this id:" + id);
         }

@@ -30,12 +30,12 @@
             DBservices dbs = new DBservices();
             return dbs.ReadInstructors();
         }
-        public void AddInstructor()
+        public bool AddInstructor()
         {
             DBservices dbs = new DBservices();
-            dbs.InsertInstructor(this);
+           return dbs.InsertInstructor(this);
         }
-        public static int Delete(int id)
+        public static bool Delete(int id)
         {
             DBservices dbs = new DBservices();
             return dbs.DeleteInstructor(id);
