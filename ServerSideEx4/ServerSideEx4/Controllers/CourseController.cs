@@ -11,9 +11,10 @@ namespace ServerSideEx4.Controllers
     {
         // GET: api/<CourseController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<Course> Get()
         {
-            return new string[] { "value1", "value2" };
+            return Course.Read();
+        
         }
 
         // GET api/<CourseController>/5
@@ -27,7 +28,7 @@ namespace ServerSideEx4.Controllers
         [HttpPost]
         public void Post([FromBody] Course course)
         {
-            course.AddCourse(course);
+            course.AddCourse();
         }
 
         // PUT api/<CourseController>/5
@@ -44,6 +45,20 @@ namespace ServerSideEx4.Controllers
             if (result == 1)
                 return Ok(id);
             else return NotFound("There is no Course with this id:" + id);
+        }
+
+        [HttpGet("GetByRatingRange/{minRating}/{maxRating}")] // this uses resource routing
+        public IEnumerable<Course> GetByRatingRange(float minRating, float maxRating)
+        {
+            Course course = new Course();
+            return course.RatingRange(minRating, maxRating);
+        }
+        [HttpGet("search")] // this uses the QueryString
+        public IEnumerable<Course> GetByDurationRange(float minDuration, float maxDuration)
+        {
+            Course course = new Course();
+            return course.DurationRange(minDuration, maxDuration);
+
         }
     }
 }

@@ -37,16 +37,36 @@
         public string ImageReference { get => imageReference; set => imageReference = value; }
         public double Duration { get => duration; set => duration = value; }
         public string LastUpdate { get => lastUpdate; set => lastUpdate = value; }
-
-        public void AddCourse(Course course)
+        public static List<Course> Read()
         {
             DBservices dbs = new DBservices();
-            dbs.InsertCourse(course);
+            return dbs.ReadCourse();
+        }
+        public void AddCourse()
+        {
+            DBservices dbs = new DBservices();
+            dbs.InsertCourse(this);
         }
         public static int Delete(int id)
         {
             DBservices dbs = new DBservices();
             return dbs.DeleteCourse(id);
         }
+        public  List<Course> RatingRange(float minRating,float maxRating)
+        {
+            DBservices dbs = new DBservices();
+            return dbs.GetByRatingRange(minRating,maxRating);
+        }
+        public List<Course> DurationRange(float minDuration, float maxDuration)
+        {
+            DBservices dbs = new DBservices();
+            return dbs.GetByDurationRange(minDuration, maxDuration);
+        }
+        public List<Course> InstructorCourses(int id)
+        {
+            DBservices dbs = new DBservices();
+            return dbs.GetInstructorCourses(id);
+        }
+
     }
 }
