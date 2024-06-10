@@ -15,15 +15,13 @@ namespace ServerSideEx4.Controllers
         {
             return Instructor.Read();
         }
-
-        // GET api/<InstructorController>/5
+        // GET api/<InstructorController>/12
         [HttpGet("{id}")]
         public IEnumerable<Course> GetInstructorCourses(int id)
         {
             Course course = new Course();
             return course.InstructorCourses(id);
         }
-
         // POST api/<InstructorController>
         [HttpPost]
         public bool Post([FromBody] Instructor instructor)

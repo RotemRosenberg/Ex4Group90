@@ -40,5 +40,6 @@
             DBservices dbs = new DBservices();
             return dbs.DeleteInstructor(id);
         }
+
     }
 }
