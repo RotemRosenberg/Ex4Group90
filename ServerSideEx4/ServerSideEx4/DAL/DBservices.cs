@@ -33,7 +33,7 @@ public class DBservices
 
 
     // insert course
-    public bool InsertCourse(Course course)
+    public Course InsertCourse(Course course)
     {
 
         SqlConnection con;
@@ -62,9 +62,9 @@ public class DBservices
             int numEffected = cmd.ExecuteNonQuery();
             if (numEffected > 0)
             {
-                return true;
+                return ReadSpecificCourse();
             }
-            return false;
+            return null;
         }
         catch (Exception ex)
         {
@@ -233,8 +233,9 @@ public class DBservices
         }
 
     }
-    //get all courses by rating range
-    public List<Course> GetByRatingRange(float minRating, float maxRating)
+
+    //return currect course
+    public Course ReadSpecificCourse()
     {
 
         SqlConnection con;
@@ -249,17 +250,13 @@ public class DBservices
             // write to log
             throw (ex);
         }
-        Dictionary<string, object> paramDic = new Dictionary<string, object>();
-        paramDic.Add("@minRating", minRating);
-        paramDic.Add("@maxRating", maxRating);
 
-        cmd = CreateCommandWithStoredProcedure("SP_SelectByRatingRange", con, paramDic);             // create the command
-        List<Course> CoursesList = new List<Course>();
+        cmd = CreateCommandWithStoredProcedure("SP_GetLastInsertedCourse", con, null);             // create the command
         try
         {
             SqlDataReader dataReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
 
-            while (dataReader.Read())
+            if (dataReader.Read())
             {
                 Course course = new Course();
                 course.Id = Convert.ToInt32(dataReader["id"]);
@@ -272,9 +269,64 @@ public class DBservices
                 course.Duration = Convert.ToSingle(dataReader["duration"]);
                 DateTime Date = Convert.ToDateTime(dataReader["last_update_date"]);
                 course.LastUpdate = Date.ToString("dd/MM/yyyy");
-                CoursesList.Add(course);
+                return course;
             }
-            return CoursesList;
+            return null;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+
+    }
+
+    public Course GetCourseByTitle(string title)
+    {
+        SqlConnection con;
+        SqlCommand cmd;
+
+        try
+        {
+            con = connect("myProjDB"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+        Dictionary<string, object> paramDic = new Dictionary<string, object>();
+        paramDic.Add("@title", title);
+        cmd = CreateCommandWithStoredProcedure("SP_GetCourseByTitle", con, paramDic);             // create the command
+        try
+        {
+            SqlDataReader dataReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+            if (dataReader.Read())
+            {
+                Course course = new Course();
+                course.Id = Convert.ToInt32(dataReader["id"]);
+                course.Title = dataReader["title"].ToString();
+                course.Url = dataReader["url"].ToString();
+                course.Rating = Convert.ToSingle(dataReader["rating"]);
+                course.NumberOfReviews = Convert.ToInt32(dataReader["num_reviews"]);
+                course.InstructorsId = Convert.ToInt32(dataReader["instructors_id"]);
+                course.ImageReference = dataReader["image"].ToString();
+                course.Duration = Convert.ToSingle(dataReader["duration"]);
+                DateTime Date = Convert.ToDateTime(dataReader["last_update_date"]);
+                course.LastUpdate = Date.ToString("dd/MM/yyyy");
+                return course;
+            }
+            return null;
         }
         catch (Exception ex)
         {
@@ -291,66 +343,6 @@ public class DBservices
             }
         }
     }
-    //get all courses by duration range
-    public List<Course> GetByDurationRange(float minDuration, float maxDuration)
-    {
-
-        SqlConnection con;
-        SqlCommand cmd;
-
-        try
-        {
-            con = connect("myProjDB"); // create the connection
-        }
-        catch (Exception ex)
-        {
-            // write to log
-            throw (ex);
-        }
-        Dictionary<string, object> paramDic = new Dictionary<string, object>();
-        paramDic.Add("@minDuration", minDuration);
-        paramDic.Add("@maxDuration", maxDuration);
-
-        cmd = CreateCommandWithStoredProcedure("SP_SelectByDurationRange", con, paramDic);             // create the command
-        List<Course> CoursesList = new List<Course>();
-        try
-        {
-            SqlDataReader dataReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-
-            while (dataReader.Read())
-            {
-                Course course = new Course();
-                course.Id = Convert.ToInt32(dataReader["id"]);
-                course.Title = dataReader["title"].ToString();
-                course.Url = dataReader["url"].ToString();
-                course.Rating = Convert.ToSingle(dataReader["rating"]);
-                course.NumberOfReviews = Convert.ToInt32(dataReader["num_reviews"]);
-                course.InstructorsId = Convert.ToInt32(dataReader["instructors_id"]);
-                course.ImageReference = dataReader["image"].ToString();
-                course.Duration = Convert.ToSingle(dataReader["duration"]);
-                DateTime Date = Convert.ToDateTime(dataReader["last_update_date"]);
-                course.LastUpdate = Date.ToString("dd/MM/yyyy");
-                CoursesList.Add(course);
-            }
-            return CoursesList;
-        }
-        catch (Exception ex)
-        {
-            // write to log
-            throw (ex);
-        }
-
-        finally
-        {
-            if (con != null)
-            {
-                // close the db connection
-                con.Close();
-            }
-        }
-    }
-
-
     //--------------------------------------------------------------------------------------------------
     // instructor DB Methods
     //--------------------------------------------------------------------------------------------------
@@ -941,8 +933,124 @@ public class DBservices
 
     }
 
+    //get all courses by rating range
+    public List<Course> GetByRatingRange(int id,float minRating, float maxRating)
+    {
 
+        SqlConnection con;
+        SqlCommand cmd;
 
+        try
+        {
+            con = connect("myProjDB"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+        Dictionary<string, object> paramDic = new Dictionary<string, object>();
+        paramDic.Add("@UserId", id);
+        paramDic.Add("@minRating", minRating);
+        paramDic.Add("@maxRating", maxRating);
+
+        cmd = CreateCommandWithStoredProcedure("SP_GetAllUserCoursesRatingRange", con, paramDic);             // create the command
+        List<Course> CoursesList = new List<Course>();
+        try
+        {
+            SqlDataReader dataReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+            while (dataReader.Read())
+            {
+                Course course = new Course();
+                course.Id = Convert.ToInt32(dataReader["id"]);
+                course.Title = dataReader["title"].ToString();
+                course.Url = dataReader["url"].ToString();
+                course.Rating = Convert.ToSingle(dataReader["rating"]);
+                course.NumberOfReviews = Convert.ToInt32(dataReader["num_reviews"]);
+                course.InstructorsId = Convert.ToInt32(dataReader["instructors_id"]);
+                course.ImageReference = dataReader["image"].ToString();
+                course.Duration = Convert.ToSingle(dataReader["duration"]);
+                DateTime Date = Convert.ToDateTime(dataReader["last_update_date"]);
+                course.LastUpdate = Date.ToString("dd/MM/yyyy");
+                CoursesList.Add(course);
+            }
+            return CoursesList;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+    }
+    //get all courses by duration range
+    public List<Course> GetByDurationRange(int id,float minDuration, float maxDuration)
+    {
+
+        SqlConnection con;
+        SqlCommand cmd;
+
+        try
+        {
+            con = connect("myProjDB"); // create the connection
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+        Dictionary<string, object> paramDic = new Dictionary<string, object>();
+        paramDic.Add("@UserId", id);
+        paramDic.Add("@minDuration", minDuration);
+        paramDic.Add("@maxDuration", maxDuration);
+
+        cmd = CreateCommandWithStoredProcedure("SP_GetAllUserCoursesDurationRange", con, paramDic);             // create the command
+        List<Course> CoursesList = new List<Course>();
+        try
+        {
+            SqlDataReader dataReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+
+            while (dataReader.Read())
+            {
+                Course course = new Course();
+                course.Id = Convert.ToInt32(dataReader["id"]);
+                course.Title = dataReader["title"].ToString();
+                course.Url = dataReader["url"].ToString();
+                course.Rating = Convert.ToSingle(dataReader["rating"]);
+                course.NumberOfReviews = Convert.ToInt32(dataReader["num_reviews"]);
+                course.InstructorsId = Convert.ToInt32(dataReader["instructors_id"]);
+                course.ImageReference = dataReader["image"].ToString();
+                course.Duration = Convert.ToSingle(dataReader["duration"]);
+                DateTime Date = Convert.ToDateTime(dataReader["last_update_date"]);
+                course.LastUpdate = Date.ToString("dd/MM/yyyy");
+                CoursesList.Add(course);
+            }
+            return CoursesList;
+        }
+        catch (Exception ex)
+        {
+            // write to log
+            throw (ex);
+        }
+
+        finally
+        {
+            if (con != null)
+            {
+                // close the db connection
+                con.Close();
+            }
+        }
+    }
 
 
 

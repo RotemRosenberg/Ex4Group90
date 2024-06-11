@@ -42,16 +42,15 @@
             DBservices dbs = new DBservices();
             return dbs.ReadCourse();
         }
-        public bool AddCourse()
+        public Course AddCourse()
         {
             DBservices dbs = new DBservices();
             if (dbs.ReadCourse().Contains(this) == false)
             {
-                dbs.InsertCourse(this);
-                return true;
-
+             return  dbs.InsertCourse(this);
             }
-             return false;
+            throw new Exception("error");
+
         }
         public bool Update()
         {
@@ -63,20 +62,14 @@
             DBservices dbs = new DBservices();
             return dbs.DeleteCourse(id);
         }
-        public  List<Course> RatingRange(float minRating,float maxRating)
-        {
-            DBservices dbs = new DBservices();
-            return dbs.GetByRatingRange(minRating,maxRating);
-        }
-        public List<Course> DurationRange(float minDuration, float maxDuration)
-        {
-            DBservices dbs = new DBservices();
-            return dbs.GetByDurationRange(minDuration, maxDuration);
-        }
         public List<Course> InstructorCourses(int id)
         {
             DBservices dbs = new DBservices();
             return dbs.GetInstructorCourses(id);
+        }
+        public  static Course CourseByTitle(string title) {
+            DBservices dbs = new DBservices();
+            return dbs.GetCourseByTitle(title);
         }
         public override bool Equals(object? obj)
         {

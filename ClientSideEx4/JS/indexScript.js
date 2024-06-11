@@ -6,11 +6,15 @@
         $("#loginBTN").hide();
         $("#registerBTN").hide();
         $("#logoutBTN").show();
+        $("#myCourseBTN").show();
+
     }
     else {
         $("#loginBTN").show();
         $("#registerBTN").show();
         $("#logoutBTN").hide();
+        $("#myCourseBTN").hide();
+
     }
     if (localStorage.getItem("loggedUser") == 1) {
         $("#adminBTN").show();
@@ -24,7 +28,7 @@
     });
     $("#logoutBTN").click(Logout);
 });
-
+const createUserCourse = (userId, courseId) => ({ userId, courseId });
 //-------------------------------------------------------//
 //----------------Render Courses and Instructors---------//
 //-------------------------------------------------------//
@@ -80,21 +84,32 @@ function RenderCourses(data)
                         <p>Rating: ${course.rating.toFixed(2)}</p>
                         <p>Number of Reviews: ${course.numberOfReviews}</p>
                         <p>Last Update Date: ${course.lastUpdate}</p>
-                        <p>Duration: ${course.duration}</p>
+                        <p>Duration: ${course.duration.toFixed(2)}</p>
                         <a href="https://udemy.com${course.url}" target="_blank">View Course</a>
                                    `;
         courseDiv.innerHTML = html;
-        let btn = document.createElement('button');
-        btn.innerText = 'Show more courses of this instructor';
-        btn.onclick = function () {
+        let btnInstructor = document.createElement('button');
+        btnInstructor.innerText = 'Show more courses of this instructor';
+        btnInstructor.onclick = function () {
 
             let api = `https://localhost:7020/api/Instructor/` + course.instructorsId;
             ajaxCall("GET", api, "", getICSCBF, getICECBF);
 
 
         }
-        courseDiv.appendChild(btn);
-
+        let btnAdd = document.createElement('button');
+        btnAdd.innerText = 'AddCourse';
+        btnAdd.onclick = function () {
+            if (localStorage.getItem("loggedUser") != 1 && localStorage.getItem("loggedUser")) {
+            
+            let UserCourse = createUserCourse(localStorage.getItem("loggedUser"), course.id);
+            let api = `https://localhost:7020/api/UserCourse`;
+            ajaxCall("POST", api, JSON.stringify(UserCourse), postCourseSCBF, postCourseECBF);
+            }
+        else alert("please login")
+        }
+        courseDiv.appendChild(btnInstructor);
+        courseDiv.appendChild(btnAdd);
         container.appendChild(courseDiv);
     }
 }
@@ -107,7 +122,16 @@ function getICECBF(err) {
     console.log(err);
 
 }
+function postCourseSCBF(result) {
+    alert('The course was successfully added');
+    console.log(result);
+}
 
+function postCourseECBF(err) {
+    alert("The course has already been added")
+    console.log(err);
+
+}
 //Render Instructor Courses
 function RenderInstructorCourses(courses) {
     GetInstructors();
@@ -131,7 +155,7 @@ function RenderInstructorCourses(courses) {
                         <p>Rating: ${course.rating.toFixed(2)}</p>
                         <p>Number of Reviews: ${course.numberOfReviews}</p>
                         <p>Last Update Date: ${course.lastUpdate}</p>
-                        <p>Duration: ${course.duration}</p>
+                        <p>Duration: ${course.duration.toFixed(2)}</p>
                         <a href="https://udemy.com${course.url}" target="_blank">View Course</a>
                                    `;
         courseDiv.innerHTML = html;
@@ -143,9 +167,7 @@ function RenderInstructorCourses(courses) {
     const titleDiv = document.getElementById('title');
     titleDiv.textContent = name;
 }
-//-------------------------------------------------------//
-//-------------------------------------------------------//
-//-------------------------------------------------------//
+
 
 //-------------------------------------------------------//
 //---------------------User system-----------------------//

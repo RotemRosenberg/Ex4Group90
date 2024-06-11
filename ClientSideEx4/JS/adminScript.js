@@ -1,12 +1,23 @@
 ﻿const createUserCourse = (userId, courseId) => ({ userId, courseId });
-const createCourse = (id, title, url, rating, numberOfReviews, instructorsId, imageReference, duration, lastUpdate) => ({ id, title, url, rating, numberOfReviews, instructorsId, imageReference, duration, lastUpdate });
-
+function createCourse(id, title, url, rating, numberOfReviews, instructorsId, imageReference, duration, lastUpdate) {
+    return { id, title, url, rating, numberOfReviews, instructorsId, imageReference, duration, lastUpdate };
+}
 $(document).ready(function () {
     GetAdminCourses();
     $("#insertCourseBTN").click(function () {
         insertCourse();
     });
+  
     InstructorSelect();
+    $("#findCourseBTN").click(function () {
+        const courseTitle = $("#courseSearch").val();
+        if (courseTitle) {
+            findSpecificCourse(courseTitle);
+        } else {
+            alert("Please choose a course first");
+        }
+    });
+
 });
 
 //-------------------------------------------------------//
@@ -40,7 +51,7 @@ function RenderCourses(data) {
                         <p>Rating: ${course.rating.toFixed(2)}</p>
                         <p>Number of Reviews: ${course.numberOfReviews}</p>
                         <p>Last Update Date: ${course.lastUpdate}</p>
-                        <p>Duration: ${course.duration}</p>
+                        <p>Duration: ${course.duration.toFixed(2)}</p>
                         <a href="https://udemy.com${course.url}" target="_blank">View Course</a>
                                    `;
         courseDiv.innerHTML = html;
@@ -48,14 +59,17 @@ function RenderCourses(data) {
         btn.innerText = 'Edit Course';
         btn.onclick = function () {
 
-            //let api = `https://localhost:7020/api/Instructor/` + course.instructorsId;
-            //ajaxCall("GET", api, "", getICSCBF, getICECBF);
+            renderSpecificCourse(course)
 
 
         }
         courseDiv.appendChild(btn);
 
         container.appendChild(courseDiv);
+        const datalist = document.getElementById("courses");
+        const option = document.createElement('option');
+        option.value = course.title;
+        datalist.appendChild(option);
     }
 }
 
@@ -67,10 +81,7 @@ function insertCourse() {
     editCourseForm.style.display = "block";
     document.getElementById("labelInstructorID").style.display = "block";
     document.getElementById("instructorIDTB").style.display = "block";
-    document.getElementById("labelimageURL").style.display = "block";
-    document.getElementById("imageURLTB").style.display = "block";
-    document.getElementById("labelImageUpload").style.display = "none";
-    document.getElementById("imageUpload").style.display = "none";
+
     $('#instructorIDTB, #imageURLTB').attr('required', 'required');
     $("#editCourseForm").submit(function (e) {
         e.preventDefault();
@@ -79,10 +90,7 @@ function insertCourse() {
         $("#imageURLTB").removeAttr('required');
         $('#courseIDLabel').hide();
         $('#labelInstructorID').hide();
-        $('#labelimageURL').hide();
         $('#instructorIDTB').hide();
-        $('#imageURLTB').hide();
-        $('#labelImageUpload').show();
         location.reload();
     });
 
@@ -100,20 +108,21 @@ function InstructorSelect() {
 }
 
 function submitInsertCourse() {
-    let newCourse = createCourse(1, $("#courseTitleTB").val(), $("#courseURLTB").val(), 0, 0, $("#instructorIDTB").val(), $("#imageURLTB").val(), $("#courseDuration").val(), 'date')
+    let newCourse = createCourse(0, $("#courseTitleTB").val(), $("#courseURLTB").val(), 0, 0, parseInt($("#instructorIDTB").val()), $("#imageURLTB").val(), parseFloat($("#courseDuration").val()), 'd');
+    console.log(newCourse);
     let api = `https://localhost:7020/api/Course`;
     ajaxCall("POST", api, JSON.stringify(newCourse), insertSCBF, insertECBF);
 }
 
 function insertSCBF(result) {
-    console.log("Inserted successfully:", result);
-    //let adminCourse = createUserCourse(1, result.id) 
-    //let api = 'https://localhost:7020/api/UserCourse';
-    //ajaxCall("POST", api, JSON.stringify(adminCourse), adminSCBF, adminECBF); //add to admin this course
-    //editCourseForm.style.display = "none";
-    //document.getElementById('editCourseForm').reset();
-    //GetAdminCourses();
     alert("Course created successfully!");
+    console.log("Inserted successfully:", result);
+    let adminCourse = createUserCourse(1, result.id) 
+    let api = 'https://localhost:7020/api/UserCourse';
+    ajaxCall("POST", api, JSON.stringify(adminCourse), adminSCBF, adminECBF); //add to admin this course
+    editCourseForm.style.display = "none";
+    document.getElementById('editCourseForm').reset();
+    GetAdminCourses();
 }
 
 function insertECBF(err) {
@@ -127,4 +136,78 @@ function adminSCBF(result) {
 }
 function adminECBF(err) {
     console.log(err);
+}
+
+//-------------------------------------------------------//
+//-------------------Edit Courses----------------------//
+//-------------------------------------------------------//
+
+function renderSpecificCourse(course) {
+    const container = document.getElementById('containerCourses');
+    container.innerHTML = "";
+    const courseDiv = document.createElement('div');
+    courseDiv.id = "courseDiv";
+        const html = `
+                        <img src="${course.imageReference}" alt="${course.title}">
+                        <h2>${course.title}</h2>
+                        <p>Instructor: ${localStorage.getItem(course.instructorsId)}</p>
+                        <p>Rating: ${course.rating.toFixed(2)}</p>
+                        <p>Number of Reviews: ${course.numberOfReviews}</p>
+                        <p>Last Update Date: ${course.lastUpdate}</p>
+                        <p>Duration: ${course.duration}</p>
+                        <a href="https://udemy.com${course.url}" target="_blank">View Course</a>
+                                   `;
+        courseDiv.innerHTML = html;
+    //add course btn
+    let btn = document.createElement('button');
+    btn.innerText = 'Edit Course';
+    btn.onclick = function () {
+        const editCourseForm = document.getElementById("editCourseForm");
+        editCourseForm.style.display = "block";
+        $("#editCourseForm").submit(function (e) {
+            e.preventDefault();
+            submitUpdateCourse(course);
+        });
+    };
+    courseDiv.appendChild(btn);
+    container.appendChild(courseDiv);
+}
+function submitUpdateCourse(course) {
+    let editCourse = createCourse(course.id, $("#courseTitleTB").val(), $("#courseURLTB").val(), course.rating, course.numberOfReviews, course.instructorsId , $("#imageURLTB").val(), parseFloat($("#courseDuration").val()), course.lastUpdate);
+    let api = 'https://localhost:7020/api/Course/userUpdate';
+    ajaxCall("PUT", api, JSON.stringify(editCourse), updateSCBF, updateECBF);
+
+}
+
+function updateSCBF(result) {
+    console.log("Update successful:", result);
+    editCourseForm.style.display = "none";
+    alert("Course updated successfully!");
+    document.getElementById('editCourseForm').reset();
+    GetAdminCourses();
+    location.reload();
+}
+
+function updateECBF(err) {
+    console.log("Update failed:", err);
+    alert("Failed to update the course.");
+}
+
+
+//-------------------------------------------------------//
+//-------------------Search Courses----------------------//
+//-------------------------------------------------------//
+
+function findSpecificCourse(title) {
+    let api = 'https://localhost:7020/api/Course/title/'+title;
+    ajaxCall("GET", api, "", findSCBF, findECBF);
+}
+
+function findSCBF(result) {
+    renderSpecificCourse(result);
+}
+
+function findECBF(err) {
+    console.log(err);
+    alert("Failed to find the course.");
 }

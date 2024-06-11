@@ -38,21 +38,24 @@ function Register() {
     let newUser = createUser(0, $('#nameTB').val(), $('#emailTB').val(), $('#passwordTB').val(), false, true);
     let api = `https://localhost:7020/api/User/register`;
     ajaxCall("POST", api, JSON.stringify(newUser), postRSCBF, postRECBF);
+    return false;
+
 }
 
 function postRSCBF(data) {
-    if (data == null) {
-        alert("The user is already registered");
-        document.getElementById('registerForm').reset();
-    }
-    else {
+    console.log(data);
+    if (data != null) {
         localStorage.setItem("loggedUser", data.id);
         alert("The user has been registered");
         alert("The user has been logged in");
         window.opener.location.reload();
         window.close();
+
     }
-    console.log(data);
+    else {
+        alert("The user is already registered");
+        document.getElementById('registerForm').reset();
+    }
 }
 function postRECBF(err) {
     alert('error')

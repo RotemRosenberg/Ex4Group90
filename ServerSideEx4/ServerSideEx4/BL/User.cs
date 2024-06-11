@@ -34,12 +34,12 @@
             DBservices dbs = new DBservices();
             return dbs.ReadUsers();
         }
-        public static User Register(User user)
+        public User Register()
         {
             DBservices dbs = new DBservices();
-            if (dbs.ReadUsers().Contains(user) == false)
+            if (dbs.ReadUsers().Contains(this) == false)
             {
-              return  dbs.RegisterUser(user);
+              return  dbs.RegisterUser(this);
                 
             }
             throw new Exception("The email is registered in the system");

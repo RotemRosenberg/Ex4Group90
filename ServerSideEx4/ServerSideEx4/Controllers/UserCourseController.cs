@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ServerSideEx4.BL;
+using System.Runtime.InteropServices;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -40,6 +41,19 @@ namespace ServerSideEx4.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
+        }
+        [HttpGet("GetByRatingRange/{id}")] 
+        public List<Course> GetByRatingRange(int id, [FromQuery] float minRating, [FromQuery] float maxRating)
+        {
+            UserCourse userCourse = new UserCourse();
+            return userCourse.RatingRange(id,minRating, maxRating);
+        }
+        [HttpGet("GetByDurationRange/{id}")] 
+        public List<Course> GetByDurationRange(int id, [FromQuery] float minDuration, [FromQuery] float maxDuration)
+        {
+            UserCourse userCourse = new UserCourse();
+            return userCourse.DurationRange(id,minDuration, maxDuration);
+
         }
     }
 }

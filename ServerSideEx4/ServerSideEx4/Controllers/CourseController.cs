@@ -26,11 +26,16 @@ namespace ServerSideEx4.Controllers
 
         // POST api/<CourseController>
         [HttpPost]
-        public bool Post([FromBody] Course course)
+        public Course Post([FromBody] Course course)
         {
             return course.AddCourse();
         }
 
+        [HttpGet("title/{courseTitle}")]
+        public Course GetCourseByTitle(string courseTitle)
+        {
+            return Course.CourseByTitle(courseTitle);
+        }
         // PUT api/<CourseController>/5
         [HttpPut("userUpdate")]
         public bool Put([FromBody] Course updatedCourse)
@@ -47,18 +52,5 @@ namespace ServerSideEx4.Controllers
             else return NotFound("There is no Course with this id:" + id);
         }
 
-        [HttpGet("GetByRatingRange/{minRating}/{maxRating}")] // this uses resource routing
-        public IEnumerable<Course> GetByRatingRange(float minRating, float maxRating)
-        {
-            Course course = new Course();
-            return course.RatingRange(minRating, maxRating);
-        }
-        [HttpGet("search")] // this uses the QueryString
-        public IEnumerable<Course> GetByDurationRange(float minDuration, float maxDuration)
-        {
-            Course course = new Course();
-            return course.DurationRange(minDuration, maxDuration);
-
-        }
     }
 }

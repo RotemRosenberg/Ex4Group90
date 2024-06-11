@@ -27,12 +27,7 @@ namespace ServerSideEx4.Controllers
         [HttpPost("register")]
         public User Register([FromBody] User user)
         {
-            User newUser = BL.User.Register(user);
-            if (user == null)
-            {
-                throw new Exception("The email is registered in the system");
-            }
-            return newUser;
+            return user.Register();
         }
         // POST api/<UserController>/login
         [HttpPost("login")]
