@@ -41,7 +41,7 @@ namespace ServerSideEx4.Controllers
         {
             if (Instructor.Delete(id))
                 return Ok(id);
-            else return NotFound("There is no Course with this id:" + id);
+            else return NotFound("There is no USER with this id:" + id);
         }
     }
 }

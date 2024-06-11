@@ -13,7 +13,7 @@
         {
         }
 
-        public User(string name, string email, string password, bool isAdmin, bool isActive)
+        public User(int id,string name, string email, string password, bool isAdmin, bool isActive)
         {
             Id = id;
             Name = name;
@@ -34,15 +34,15 @@
             DBservices dbs = new DBservices();
             return dbs.ReadUsers();
         }
-        public bool Register()
+        public static User Register(User user)
         {
             DBservices dbs = new DBservices();
-            if (dbs.ReadUsers().Contains(this) == false)
+            if (dbs.ReadUsers().Contains(user) == false)
             {
-                dbs.RegisterUser(this);
-                return true;
+              return  dbs.RegisterUser(user);
+                
             }
-            return false;
+            throw new Exception("The email is registered in the system");
         }
         public static User Login(string email, string password)
         {
@@ -52,6 +52,11 @@
         public override bool Equals(object? obj)
         {
             return obj is User user && Email == user.Email;
+        }
+        public static bool Delete(int id)
+        {
+            DBservices dbs = new DBservices();
+            return dbs.DeleteUser(id);
         }
     }
 }

@@ -5,7 +5,7 @@
     background-color: #f4f4f4;
 }
 
-#containerCourses, #containerInstructorCourses {
+#containerCourses, #containerInstructorCourses, #containerInstructors {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;

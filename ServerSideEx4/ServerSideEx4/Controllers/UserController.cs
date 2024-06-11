@@ -24,10 +24,15 @@ namespace ServerSideEx4.Controllers
         }
 
         // POST api/<UserController>
-        [HttpPost]
-        public bool Post([FromBody] User user)
+        [HttpPost("register")]
+        public User Register([FromBody] User user)
         {
-           return user.Register();
+            User newUser = BL.User.Register(user);
+            if (user == null)
+            {
+                throw new Exception("The email is registered in the system");
+            }
+            return newUser;
         }
         // POST api/<UserController>/login
         [HttpPost("login")]
@@ -48,8 +53,11 @@ namespace ServerSideEx4.Controllers
 
         // DELETE api/<UserController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
+            if (BL.User.Delete(id))
+                return Ok(id);
+            else return NotFound("There is no user with this id:" + id);
         }
     }
 }

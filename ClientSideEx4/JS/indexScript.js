@@ -1,9 +1,33 @@
 ﻿$(document).ready(function () {
-    GetCourses();
     GetInstructors();
+    GetCourses();
     $("#backBTN").click(GetCourses);
+    if (localStorage.getItem("loggedUser")) {
+        $("#loginBTN").hide();
+        $("#registerBTN").hide();
+        $("#logoutBTN").show();
+    }
+    else {
+        $("#loginBTN").show();
+        $("#registerBTN").show();
+        $("#logoutBTN").hide();
+    }
+    if (localStorage.getItem("loggedUser") == 1) {
+        $("#adminBTN").show();
+    }
+    else {
+        $("#adminBTN").hide();
+    }
+    $("#loginBTN").click(openLoginForm);
+    $("#registerBTN").click(function () {
+        openRegistrationForm();
+    });
+    $("#logoutBTN").click(Logout);
+});
 
-})
+//-------------------------------------------------------//
+//----------------Render Courses and Instructors---------//
+//-------------------------------------------------------//
 
 function GetCourses() {
     let api = `https://localhost:7020/api/Course`;
@@ -40,6 +64,8 @@ function renderInstructor(data) {
 }
 function RenderCourses(data)
 {
+
+    document.getElementById('containerInstructorCourses').innerHTML = '';
     document.getElementById('backBTN').style.display = 'none';
     const container = document.getElementById('containerCourses');
     const titleDiv = document.getElementById('title');
@@ -81,7 +107,10 @@ function getICECBF(err) {
     console.log(err);
 
 }
+
+//Render Instructor Courses
 function RenderInstructorCourses(courses) {
+    GetInstructors();
     document.getElementById('containerCourses').innerHTML = '';
     const container = document.getElementById('containerInstructorCourses');
 
@@ -113,4 +142,52 @@ function RenderInstructorCourses(courses) {
     //title
     const titleDiv = document.getElementById('title');
     titleDiv.textContent = name;
+}
+//-------------------------------------------------------//
+//-------------------------------------------------------//
+//-------------------------------------------------------//
+
+//-------------------------------------------------------//
+//---------------------User system-----------------------//
+//-------------------------------------------------------//
+
+//loggin form
+function openLoginForm() {
+    var url = "loginForm.html";
+
+    var width = 600;
+    var height = 700;
+    var left = (screen.width - width) / 2;
+    var top = (screen.height - height) / 2;
+    var features = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+
+    // Open the registration form page in a pop-up window
+    window.open(url, "_blank", features);
+
+}
+
+//register form
+function openRegistrationForm() {
+    var url = "RegisterForm.html";
+
+    var width = 600;
+    var height = 700;
+    var left = (screen.width - width) / 2;
+    var top = (screen.height - height) / 2;
+    var features = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+
+    // Open the registration form page in a pop-up window
+    window.open(url, "_blank", features);
+}
+
+//Logout
+function Logout() {
+    if (localStorage.getItem("loggedUser")) {
+        localStorage.removeItem("loggedUser");
+        alert("Disconnected succefully");
+        location.reload();
+    }
+    else {
+        alert("You must be logged in in order to logout");
+    }
 }
