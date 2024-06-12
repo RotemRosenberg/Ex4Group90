@@ -34,7 +34,7 @@ const createUserCourse = (userId, courseId) => ({ userId, courseId });
 //-------------------------------------------------------//
 
 function GetCourses() {
-    let api = `https://localhost:7020/api/Course`;
+    let api = `https://194.90.158.74/cgroup90/test2/tar1/api/Course`;
     ajaxCall("GET", api, "", getSCBF, getECBF);
 }
 function getSCBF(result) {
@@ -48,7 +48,7 @@ function getECBF(err) {
 }
 
 function GetInstructors(id) {
-    let api = `https://localhost:7020/api/Instructor`;
+    let api = `https://194.90.158.74/cgroup90/test2/tar1/api/Instructor`;
      ajaxCall("GET", api, "",getISCBF, getIECBF);
 }
 function getISCBF(result) {
@@ -92,7 +92,7 @@ function RenderCourses(data)
         btnInstructor.innerText = 'Show more courses of this instructor';
         btnInstructor.onclick = function () {
 
-            let api = `https://localhost:7020/api/Instructor/` + course.instructorsId;
+            let api = `https://194.90.158.74/cgroup90/test2/tar1/api/Instructor/` + course.instructorsId;
             ajaxCall("GET", api, "", getICSCBF, getICECBF);
 
 
@@ -103,7 +103,7 @@ function RenderCourses(data)
             if (localStorage.getItem("loggedUser") != 1 && localStorage.getItem("loggedUser")) {
             
             let UserCourse = createUserCourse(localStorage.getItem("loggedUser"), course.id);
-            let api = `https://localhost:7020/api/UserCourse`;
+                let api = `https://194.90.158.74/cgroup90/test2/tar1/api/UserCourse`;
             ajaxCall("POST", api, JSON.stringify(UserCourse), postCourseSCBF, postCourseECBF);
             }
         else alert("please login")
