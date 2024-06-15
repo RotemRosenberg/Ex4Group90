@@ -20,10 +20,7 @@ $(document).ready(function () {
             alert("Please choose a course first");
         }
     });
-    $("#editCourseForm").submit(function (e) {
-        e.preventDefault();
-        submitInsertCourse();
-    });
+
 
 });
 
@@ -92,16 +89,10 @@ function insertCourse() {
     document.getElementById("instructorIDTB").style.display = "block";
 
     $('#instructorIDTB, #imageURLTB').attr('required', 'required');
-    //$("#editCourseForm").submit(function (e) {
-    //    e.preventDefault();
-    //    submitInsertCourse();
-    //    $("#instructorIDTB").removeAttr('required');
-    //    $("#imageURLTB").removeAttr('required');
-    //    $('#courseIDLabel').hide();
-    //    $('#labelInstructorID').hide();
-    //    $('#instructorIDTB').hide();
-    //    location.reload();
-    //});
+    $("#editCourseForm").submit(function (e) {
+        e.preventDefault();
+        submitInsertCourse();
+    });
 
 }
 
